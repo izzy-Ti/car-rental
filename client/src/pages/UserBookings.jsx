@@ -13,7 +13,7 @@ const UserBookings = () => {
   const fetchUserBookings = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/bookings/user', {
+      const response = await fetch('https://car-rental-1xr3.onrender.com/api/bookings/user', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

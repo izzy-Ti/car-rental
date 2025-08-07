@@ -33,8 +33,12 @@ export const login = async (req,res) =>{
             return res.status(404).json({success: false, message: 'User not found'})
         }
         const token =jwt.sign({id: loggedUser._id}, process.env.HASH_KEY)
-        res.cookie('token', token)
-        res.json({success: true, message: 'Login successful' , user: loggedUser})
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None'
+    })
+        res.json({success: true, message: 'Login successful' ,token: token , user: loggedUser})
     } catch (error){
         return res.status(500).json({success: false, message: 'system error', error: error.message})
     }

@@ -75,7 +75,7 @@ const AddCar = () => {
         formDataToSend.append('image', image)
       })
 
-      const response = await fetch('http://localhost:5000/api/cars/', {
+      const response = await fetch('https://car-rental-1xr3.onrender.com/api/cars/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

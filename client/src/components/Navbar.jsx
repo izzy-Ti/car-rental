@@ -117,12 +117,14 @@ const Navbar = ({ user, setUser }) => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                <Link
-                  to="/add-car"
-                  className="bg-[#102542] hover:bg-[#0a1a2e] text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                  Add Car
-                </Link>
+                {user.role === 'ADMIN' && (
+                  <Link
+                    to="/add-car"
+                    className="bg-[#102542] hover:bg-[#0a1a2e] text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    Add Car
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="bg-[#F87060] hover:bg-[#e65a4a] text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
@@ -210,13 +212,15 @@ const Navbar = ({ user, setUser }) => {
                 >
                   Profile
                 </Link>
-                <Link 
-                  to="/add-car" 
-                  className="text-[#102542] hover:text-[#F87060] transition-colors duration-200 font-medium text-lg py-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Add Car
-                </Link>
+                {user.role === 'ADMIN' && (
+                  <Link 
+                    to="/add-car" 
+                    className="text-[#102542] hover:text-[#F87060] transition-colors duration-200 font-medium text-lg py-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Add Car
+                  </Link>
+                )}
               </>
             )}
             <div className="pt-4 space-y-3">

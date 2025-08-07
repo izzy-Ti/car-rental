@@ -14,7 +14,7 @@ const AllBookings = () => {
   const fetchAllBookings = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/bookings/', {
+      const response = await fetch('https://car-rental-1xr3.onrender.com/api/bookings/', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -41,7 +41,7 @@ const AllBookings = () => {
   const updateBookingStatus = async (bookingId, newStatus) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+      const response = await fetch(`https://car-rental-1xr3.onrender.com/api/bookings/${bookingId}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

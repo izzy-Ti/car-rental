@@ -19,7 +19,7 @@ const Profile = ({ user, setUser }) => {
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/users/', {
+      const response = await fetch('https://car-rental-1xr3.onrender.com/api/users/', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -60,7 +60,7 @@ const Profile = ({ user, setUser }) => {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/users/', {
+      const response = await fetch('https://car-rental-1xr3.onrender.com/api/users/', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -89,7 +89,7 @@ const Profile = ({ user, setUser }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/logout', {
+      const response = await fetch('https://car-rental-1xr3.onrender.com/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -289,17 +289,19 @@ const Profile = ({ user, setUser }) => {
                   </div>
                 </button>
 
-                <button
-                  onClick={() => navigate('/add-car')}
-                  className="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-[#F87060] hover:bg-[#F87060] hover:text-white transition-all duration-200"
-                >
-                  <div className="flex items-center space-x-3">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    <span>Add New Car</span>
-                  </div>
-                </button>
+                {userData?.role === 'ADMIN' && (
+                  <button
+                    onClick={() => navigate('/add-car')}
+                    className="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-[#F87060] hover:bg-[#F87060] hover:text-white transition-all duration-200"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      <span>Add New Car</span>
+                    </div>
+                  </button>
+                )}
 
                 <button
                   onClick={() => navigate('/cars')}
