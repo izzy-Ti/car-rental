@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { apiUrl } from '../lib/api'
 
 const Hero = () => (
   <section className="bg-gradient-to-r from-[#102542] to-[#1a365d] py-20 px-4">
@@ -39,7 +40,7 @@ const FeaturedCars = () => {
 
   const fetchCars = async () => {
     try {
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/cars/')
+      const response = await fetch(apiUrl('/api/cars/'))
       const data = await response.json()
       if (data.success) {
         // Get 4 random cars from the array

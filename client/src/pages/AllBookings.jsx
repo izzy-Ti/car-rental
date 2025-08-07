@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { apiUrl } from '../lib/api'
 
 const AllBookings = () => {
   const [bookings, setBookings] = useState([])
@@ -14,7 +15,7 @@ const AllBookings = () => {
   const fetchAllBookings = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/bookings/', {
+      const response = await fetch(apiUrl('/api/bookings/'), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -41,7 +42,7 @@ const AllBookings = () => {
   const updateBookingStatus = async (bookingId, newStatus) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`https://car-rental-1xr3.onrender.com/api/bookings/${bookingId}`, {
+      const response = await fetch(apiUrl(`/api/bookings/${bookingId}`), {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

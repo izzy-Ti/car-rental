@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { apiUrl } from '../lib/api'
 
 const Profile = ({ user, setUser }) => {
   const navigate = useNavigate()
@@ -19,7 +20,7 @@ const Profile = ({ user, setUser }) => {
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/users/', {
+      const response = await fetch(apiUrl('/api/users/'), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -60,7 +61,7 @@ const Profile = ({ user, setUser }) => {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/users/', {
+      const response = await fetch(apiUrl('/api/users/'), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -89,7 +90,7 @@ const Profile = ({ user, setUser }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/auth/logout', {
+      const response = await fetch(apiUrl('/api/auth/logout'), {
         method: 'POST',
         credentials: 'include',
         headers: {

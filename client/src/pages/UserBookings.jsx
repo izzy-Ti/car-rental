@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { apiUrl } from '../lib/api'
 
 const UserBookings = () => {
   const [bookings, setBookings] = useState([])
@@ -13,7 +14,7 @@ const UserBookings = () => {
   const fetchUserBookings = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/bookings/user', {
+      const response = await fetch(apiUrl('/api/bookings/user'), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -64,6 +65,27 @@ const UserBookings = () => {
     const diffTime = Math.abs(end - start)
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays
+  }
+
+  const cancelBooking = async (bookingId) => {
+    if (!window.confirm('Are you sure you want to cancel this booking?')) return
+    try {
+      const response = await fetch(apiUrl(`/api/bookings/${bookingId}`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'canceled' })
+      })
+      const data = await response.json().catch(() => ({}))
+      if (response.ok && data.success) {
+        setBookings(prev => prev.map(b => b._id === bookingId ? { ...b, status: 'canceled' } : b))
+      } else {
+        alert(data.message || 'Failed to cancel booking')
+      }
+    } catch (err) {
+      console.error('Cancel booking error:', err)
+      alert('Network error. Please try again.')
+    }
   }
 
   if (loading) {
@@ -209,10 +231,7 @@ const UserBookings = () => {
                         )}
                         {booking.status === 'pending' && (
                           <button
-                            onClick={() => {
-                              // Add cancel booking functionality here
-                              alert('Cancel booking functionality would be implemented here')
-                            }}
+                            onClick={() => cancelBooking(booking._id)}
                             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-200"
                           >
                             Cancel

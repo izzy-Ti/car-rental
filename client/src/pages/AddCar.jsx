@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { apiUrl } from '../lib/api'
 
 const AddCar = () => {
   const navigate = useNavigate()
@@ -30,8 +31,8 @@ const AddCar = () => {
       return
     }
     
-    // Validate file types
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    // Validate file types (must match server: jpeg/jpg/png only)
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png']
     const invalidFiles = files.filter(file => !validTypes.includes(file.type))
     
     if (invalidFiles.length > 0) {
@@ -62,6 +63,24 @@ const AddCar = () => {
     }
 
     try {
+      // Ensure admin session via cookie exists before uploading (avoids 500)
+      try {
+        const sessionRes = await fetch(apiUrl('/api/users/'), {
+          method: 'GET',
+          credentials: 'include'
+        })
+        const sessionData = await sessionRes.json().catch(() => ({}))
+        if (!sessionRes.ok || !sessionData?.success || sessionData?.userProfile?.role !== 'ADMIN') {
+          setError('Your session is not valid for admin actions. Please log in as an admin and try again.')
+          setLoading(false)
+          return
+        }
+      } catch {
+        setError('Unable to verify session. Please log in as an admin and try again.')
+        setLoading(false)
+        return
+      }
+
       const token = localStorage.getItem('token')
       const formDataToSend = new FormData()
       
@@ -75,22 +94,32 @@ const AddCar = () => {
         formDataToSend.append('image', image)
       })
 
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/cars/', {
+      const response = await fetch(apiUrl('/api/cars/'), {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        // Do NOT set Content-Type for FormData; browser will add the correct boundary
+        // We also avoid Authorization header since backend reads httpOnly cookie
         credentials: 'include',
         body: formDataToSend
       })
 
-      const data = await response.json()
+      let data
+      let fallbackText
+      try {
+        data = await response.clone().json()
+      } catch (e) {
+        fallbackText = await response.text()
+      }
 
-      if (response.ok && data.success) {
+      if (response.ok && data && data.success) {
         alert('Car added successfully!')
         navigate('/cars')
       } else {
-        setError(data.message || 'Failed to add car')
+        // Common cases: 401/403 when cookie missing; 500 returning HTML error page
+        const statusMessage = response.status === 401 || response.status === 403
+          ? 'You are not authorized. Please log in as an admin and try again.'
+          : undefined
+        const serverMessage = data?.message || (fallbackText && fallbackText.slice(0, 200))
+        setError(statusMessage || serverMessage || 'Failed to add car')
       }
     } catch (error) {
       console.error('Error adding car:', error)
@@ -242,14 +271,14 @@ const AddCar = () => {
                         name="images"
                         type="file"
                         multiple
-                        accept="image/*"
+                        accept="image/jpeg,image/jpg,image/png"
                         onChange={handleImageChange}
                         className="sr-only"
                       />
                     </label>
                     <p className="pl-1">or drag and drop</p>
                   </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, WebP up to 10MB each</p>
+                  <p className="text-xs text-gray-500">PNG or JPG up to 10MB each</p>
                 </div>
               </div>
             </div>

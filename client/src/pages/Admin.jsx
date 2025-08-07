@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { apiUrl } from '../lib/api'
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -23,7 +24,7 @@ const Admin = () => {
     const token = localStorage.getItem('token')
     if (token) {
       try {
-        const response = await fetch('https://car-rental-1xr3.onrender.com/api/users/', {
+        const response = await fetch(apiUrl('/api/users/'), {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -56,7 +57,7 @@ const Admin = () => {
     setError('')
 
     try {
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/auth/login', {
+      const response = await fetch(apiUrl('/api/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +96,7 @@ const Admin = () => {
   const fetchAllBookings = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/bookings/', {
+      const response = await fetch(apiUrl('/api/bookings/'), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -116,7 +117,7 @@ const Admin = () => {
 
   const fetchAllCars = async () => {
     try {
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/cars/')
+      const response = await fetch(apiUrl('/api/cars/'))
       const data = await response.json()
       
       if (data.success) {
@@ -127,10 +128,36 @@ const Admin = () => {
     }
   }
 
+  const deleteCar = async (carId) => {
+    if (!window.confirm('Are you sure you want to delete this car? This action cannot be undone.')) return
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(apiUrl(`/api/cars/${carId}`), {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+
+      let data
+      try {
+        data = await response.clone().json()
+      } catch {}
+
+      if (response.ok && data.success) {
+        setAllCars(cars => cars.filter(c => c._id !== carId))
+        alert('Car deleted successfully!')
+      } else {
+        alert(data.message || 'Failed to delete car')
+      }
+    } catch (error) {
+      console.error('Error deleting car:', error)
+      alert('Network error. Please try again.')
+    }
+  }
+
   const updateBookingStatus = async (bookingId, newStatus) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`https://car-rental-1xr3.onrender.com/api/bookings/${bookingId}`, {
+      const response = await fetch(apiUrl(`/api/bookings/${bookingId}`), {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -442,6 +469,12 @@ const Admin = () => {
                           className="text-[#F87060] hover:text-[#e65a4a] mr-4"
                         >
                           Edit
+                        </button>
+                        <button
+                          onClick={() => deleteCar(car._id)}
+                          className="text-red-600 hover:text-red-800 mr-4"
+                        >
+                          Delete
                         </button>
                         <button
                           onClick={() => navigate(`/car/${car._id}`)}

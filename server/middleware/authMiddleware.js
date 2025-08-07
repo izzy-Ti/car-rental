@@ -3,18 +3,27 @@ import  jwt  from "jsonwebtoken";
 import bcrypt from 'bcrypt'
 
 export const JWTchecker = async (req,res,next) =>{
-    const token = req.cookies.token;
-    const decoded = jwt.verify(token, process.env.HASH_KEY);
-    const userID = decoded._id
-    if(!token || !decoded){
-        return res.status(500).json({success: false, message: 'please login'})
+    try {
+        const token = req.cookies.token
+        if (!token) {
+            return res.status(401).json({success: false, message: 'please login'})
+        }
+        const decoded = jwt.verify(token, process.env.HASH_KEY)
+        if (!decoded) {
+            return res.status(401).json({success: false, message: 'invalid token'})
+        }
+        next()
+    } catch (err) {
+        return res.status(401).json({success: false, message: 'unauthorized'})
     }
-    next()
 }
 
 export const userID = async (req,res) =>{
-    const token = req.cookies.token;
-    const decoded = jwt.verify(token, process.env.HASH_KEY);
-    const userID = decoded.id
-    return userID
+    try {
+        const token = req.cookies.token
+        const decoded = jwt.verify(token, process.env.HASH_KEY)
+        return decoded.id
+    } catch (err) {
+        return null
+    }
 }

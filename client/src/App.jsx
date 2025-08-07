@@ -12,6 +12,7 @@ import EditCar from './pages/EditCar'
 import UserBookings from './pages/UserBookings'
 import AllBookings from './pages/AllBookings'
 import Profile from './pages/Profile'
+import Admin from './pages/Admin'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -49,10 +50,14 @@ function App() {
           <Route path="/register" element={<Register setUser={setUser} />} />
           <Route path="/cars" element={<CarList />} />
           <Route path="/car/:id" element={<CarDetail user={user} />} />
-          <Route path="/add-car" element={user ? <AddCar /> : <Navigate to="/login" />} />
+          <Route
+            path="/add-car"
+            element={user && user.role === 'ADMIN' ? <AddCar /> : <Navigate to="/login" />}
+          />
           <Route path="/edit-car/:id" element={user ? <EditCar /> : <Navigate to="/login" />} />
           <Route path="/my-bookings" element={user ? <UserBookings /> : <Navigate to="/login" />} />
           <Route path="/all-bookings" element={user ? <AllBookings /> : <Navigate to="/login" />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/profile" element={user ? <Profile user={user} setUser={setUser} /> : <Navigate to="/login" />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

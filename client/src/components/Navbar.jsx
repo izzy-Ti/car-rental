@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import logo from '../assets/logo.png'
+import { apiUrl } from '../lib/api'
 
 const Navbar = ({ user, setUser }) => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -18,7 +19,7 @@ const Navbar = ({ user, setUser }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/auth/logout', {
+      const response = await fetch(apiUrl('/api/auth/logout'), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -119,10 +120,10 @@ const Navbar = ({ user, setUser }) => {
               <>
                 {user.role === 'ADMIN' && (
                   <Link
-                    to="/add-car"
+                    to="/admin"
                     className="bg-[#102542] hover:bg-[#0a1a2e] text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
                   >
-                    Add Car
+                    Admin
                   </Link>
                 )}
                 <button
@@ -214,11 +215,11 @@ const Navbar = ({ user, setUser }) => {
                 </Link>
                 {user.role === 'ADMIN' && (
                   <Link 
-                    to="/add-car" 
+                    to="/admin" 
                     className="text-[#102542] hover:text-[#F87060] transition-colors duration-200 font-medium text-lg py-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Add Car
+                    Admin
                   </Link>
                 )}
               </>

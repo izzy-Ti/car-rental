@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { apiUrl } from '../lib/api'
 
 const CarDetail = ({ user }) => {
   const { id } = useParams()
@@ -13,6 +14,38 @@ const CarDetail = ({ user }) => {
   })
   const [bookingLoading, setBookingLoading] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [reviews, setReviews] = useState([])
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' })
+  const [reviewLoading, setReviewLoading] = useState(false)
+
+  async function fetchReviews() {
+    try {
+      const res = await fetch(apiUrl(`/api/reviews/${id}`), { credentials: 'include' })
+      const data = await res.json()
+      if (data.success) setReviews(data.reviews || [])
+    } catch {}
+  }
+
+  const submitReview = async (e) => {
+    e.preventDefault()
+    if (!user) return navigate('/login')
+    if (!reviewForm.comment.trim()) return
+    setReviewLoading(true)
+    try {
+      const res = await fetch(apiUrl(`/api/reviews/${id}`), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(reviewForm)
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setReviewForm({ rating: 5, comment: '' })
+        fetchReviews()
+      }
+    } catch {}
+    finally { setReviewLoading(false) }
+  }
 
   useEffect(() => {
     fetchCarDetails()
@@ -20,7 +53,7 @@ const CarDetail = ({ user }) => {
 
   const fetchCarDetails = async () => {
     try {
-      const response = await fetch(`https://car-rental-1xr3.onrender.com/api/cars/${id}`, {
+      const response = await fetch(apiUrl(`/api/cars/${id}`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,6 +65,7 @@ const CarDetail = ({ user }) => {
       
       if (data.success) {
         setCar(data.car)
+        fetchReviews()
       } else {
         setError('Failed to fetch car details')
       }
@@ -72,7 +106,7 @@ const CarDetail = ({ user }) => {
     setBookingLoading(true)
 
     try {
-      const response = await fetch(`https://car-rental-1xr3.onrender.com/api/bookings/${id}`, {
+      const response = await fetch(apiUrl(`/api/bookings/${id}`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -359,6 +393,62 @@ const CarDetail = ({ user }) => {
                     </button> to book this car.
                   </p>
                 )}
+              </form>
+            </div>
+
+            {/* Reviews */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-bold text-[#102542] mb-4">Reviews</h2>
+              {reviews.length === 0 ? (
+                <p className="text-gray-600">No reviews yet.</p>
+              ) : (
+                <div className="space-y-4 mb-6">
+                  {reviews.map((r) => (
+                    <div key={r._id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center space-x-1">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <span key={i} className={i < r.rating ? 'text-yellow-400' : 'text-gray-300'}>★</span>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-gray-700">{r.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add Review */}
+              <form onSubmit={submitReview} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#102542] mb-2">Rating</label>
+                  <select
+                    value={reviewForm.rating}
+                    onChange={(e) => setReviewForm({ ...reviewForm, rating: Number(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F87060] focus:border-[#F87060]"
+                  >
+                    {[5,4,3,2,1].map(n => (
+                      <option key={n} value={n}>{n} Star{n>1 ? 's' : ''}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#102542] mb-2">Comment</label>
+                  <textarea
+                    value={reviewForm.comment}
+                    onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                    rows={3}
+                    placeholder="Share your experience..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F87060] focus:border-[#F87060]"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={reviewLoading || !user}
+                  className="w-full bg-[#102542] hover:bg-[#0a1a2e] disabled:bg-gray-400 text-white py-3 px-4 rounded-lg font-semibold"
+                >
+                  {user ? (reviewLoading ? 'Posting...' : 'Post Review') : 'Login to review'}
+                </button>
               </form>
             </div>
           </div>

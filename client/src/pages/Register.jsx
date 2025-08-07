@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { apiUrl } from '../lib/api'
 
 const Register = ({ setUser }) => {
   const [formData, setFormData] = useState({
@@ -40,7 +41,7 @@ const Register = ({ setUser }) => {
     }
 
     try {
-      const response = await fetch('https://car-rental-1xr3.onrender.com/api/auth/register', {
+      const response = await fetch(apiUrl('/api/auth/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

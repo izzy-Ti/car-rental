@@ -5,7 +5,7 @@ import {upload} from '../config/cloudnary.js'
 
 const router = express.Router()
 
-router.post('/', JWTchecker,upload.array('image', 3), createCar)
+router.post('/', JWTchecker, upload.array('image', 3), createCar)
 router.post('/:id', getCarById)
 router.put('/:id',JWTchecker,upload.array('image', 3), updateCar)
 router.delete('/:id',JWTchecker, deleteCar)

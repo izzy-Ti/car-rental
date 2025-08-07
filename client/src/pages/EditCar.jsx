@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { apiUrl } from '../lib/api'
 
 const EditCar = () => {
   const { id } = useParams()
@@ -25,7 +26,7 @@ const EditCar = () => {
 
   const fetchCarDetails = async () => {
     try {
-      const response = await fetch(`https://car-rental-1xr3.onrender.com/api/cars/${id}`, {
+      const response = await fetch(apiUrl(`/api/cars/${id}`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,8 +74,8 @@ const EditCar = () => {
       return
     }
     
-    // Validate file types
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    // Validate file types (must match server: jpeg/jpg/png only)
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png']
     const invalidFiles = files.filter(file => !validTypes.includes(file.type))
     
     if (invalidFiles.length > 0) {
@@ -112,22 +113,29 @@ const EditCar = () => {
         formDataToSend.append('image', image)
       })
 
-      const response = await fetch(`https://car-rental-1xr3.onrender.com/api/cars/${id}`, {
+      const response = await fetch(apiUrl(`/api/cars/${id}`), {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
         credentials: 'include',
         body: formDataToSend
       })
 
-      const data = await response.json()
+      let data
+      let fallbackText
+      try {
+        data = await response.clone().json()
+      } catch (e) {
+        fallbackText = await response.text()
+      }
 
-      if (response.ok && data.success) {
+      if (response.ok && data && data.success) {
         alert('Car updated successfully!')
         navigate('/cars')
       } else {
-        setError(data.message || 'Failed to update car')
+        const statusMessage = response.status === 401 || response.status === 403
+          ? 'You are not authorized. Please log in as an admin and try again.'
+          : undefined
+        const serverMessage = data?.message || (fallbackText && fallbackText.slice(0, 200))
+        setError(statusMessage || serverMessage || 'Failed to update car')
       }
     } catch (error) {
       console.error('Error updating car:', error)
@@ -342,14 +350,14 @@ const EditCar = () => {
                         name="images"
                         type="file"
                         multiple
-                        accept="image/*"
+                        accept="image/jpeg,image/jpg,image/png"
                         onChange={handleImageChange}
                         className="sr-only"
                       />
                     </label>
                     <p className="pl-1">or drag and drop</p>
                   </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, WebP up to 10MB each</p>
+                  <p className="text-xs text-gray-500">PNG or JPG up to 10MB each</p>
                 </div>
               </div>
             </div>

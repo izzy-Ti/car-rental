@@ -17,7 +17,12 @@ export const register = async (req,res) =>{
         })
         await newUser.save()
         const token =jwt.sign({id: newUser._id}, process.env.HASH_KEY)
-        res.cookie('token', token)
+        const isProd = process.env.NODE_ENV === 'production'
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax'
+        })
         res.json({success: true, message: 'User registered successfully', user: newUser})
     } catch(error){
         res.status(500).json({success: false, message: 'Server error', error: error.message})
@@ -33,11 +38,12 @@ export const login = async (req,res) =>{
             return res.status(404).json({success: false, message: 'User not found'})
         }
         const token =jwt.sign({id: loggedUser._id}, process.env.HASH_KEY)
+        const isProd = process.env.NODE_ENV === 'production'
         res.cookie('token', token, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'None'
-    })
+            secure: isProd,
+            sameSite: isProd ? 'None' : 'Lax'
+        })
         res.json({success: true, message: 'Login successful' ,token: token , user: loggedUser})
     } catch (error){
         return res.status(500).json({success: false, message: 'system error', error: error.message})
@@ -46,10 +52,11 @@ export const login = async (req,res) =>{
 export const logout = async (req,res) =>{
     const token = req.cookies.token;
     try{
+    const isProd = process.env.NODE_ENV === 'production'
     res.clearCookie('token', {
         httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
+        secure: isProd,
+        sameSite: isProd ? 'None' : 'Lax',
     })
     res.json({success: true, message: 'Logout successful'})
     } catch (error){
