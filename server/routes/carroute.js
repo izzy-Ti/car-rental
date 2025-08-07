@@ -3,7 +3,7 @@ import { createCar, deleteCar, getAllCars, getCarById, updateCar } from '../cont
 import { JWTchecker } from '../middleware/authMiddleware.js'
 import {upload} from '../config/cloudnary.js'
 
-const router = express()
+const router = express.Router()
 
 router.post('/', JWTchecker,upload.array('image', 3), createCar)
 router.post('/:id', getCarById)
