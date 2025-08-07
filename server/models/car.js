@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const carSchema = new mongoose.Schema({
-    userId:{type: mongoose.Schema.ObjectId, ref: 'user', required: true}, 
     brand:{type: String}, 
     model:{type: String}, 
     year:{type: String}, 

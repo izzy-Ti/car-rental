@@ -5,9 +5,7 @@ export const createCar = async (req,res) =>{
     const {brand, model, year, pricePerDay, location, availability} = req.body
     const image = req.files.map(file => file.path)
     try{
-        const userid = await userID(req,res)
         const newCar = new car({
-            userId: userid,
             brand, 
             image,
             model, 
